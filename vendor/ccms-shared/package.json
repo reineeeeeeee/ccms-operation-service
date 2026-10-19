@@ -1,0 +1,37 @@
+{
+  "name": "ccms-shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CCMS shared auth/permission library, audit outbox client, standard error format and Asia/Manila time utilities",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./testing": "./src/testing/index.js",
+    "./nav": "./src/nav.js",
+    "./roles": "./src/roles.js"
+  },
+  "bin": {
+    "ccms-check-time": "./scripts/check-time-usage.mjs"
+  },
+  "files": [
+    "src",
+    "scripts"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "check:time": "node scripts/check-time-usage.mjs src",
+    "test": "node --test \"test/**/*.test.js\"",
+    "ci": "npm run lint && npm run check:time && npm test"
+  },
+  "dependencies": {
+    "jose": "^6.2.0",
+    "pg": "^8.13.0",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^16.0.0"
+  }
+}

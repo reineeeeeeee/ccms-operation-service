@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "crons": [
+    { "path": "/api/jobs/outbox", "schedule": "0 1 * * *" },
+    { "path": "/api/jobs/compute-pending", "schedule": "10 1 * * *" },
+    { "path": "/api/jobs/auto-close", "schedule": "20 1 * * *" },
+    { "path": "/api/jobs/receipt-emails", "schedule": "30 1 * * *" }
+  ]
+}
