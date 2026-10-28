@@ -90,6 +90,14 @@ export function createCoreClient({ baseUrl = coreBaseUrl(), serviceKey = process
         typeof data.office_code === 'string' &&
         typeof data.classification === 'string';
       if (!ok) throw invalid('standard');
+      // Rolling deployment compatibility: older Core lookup replies omit the additive name field.
+      // Resolve it through Core's existing trusted office API, never from the caller or an office code.
+      if (data.office_name === undefined) {
+        const fallback = await call('GET', `/offices/${encodeURIComponent(data.office_id)}`);
+        if (!isObject(fallback.office) || fallback.office.office_id !== data.office_id) throw invalid('office');
+        data.office_name = fallback.office.office_name;
+      }
+      if (typeof data.office_name !== 'string' || !data.office_name.trim()) throw invalid('office name');
       return data;
     },
 

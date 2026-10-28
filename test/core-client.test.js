@@ -6,7 +6,7 @@ import { CoreRejectedError, CoreUnavailableError, coreBaseUrl, createCoreClient 
 
 const KEY = 'k-123';
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
-const standard = { standard_id: 's1', duration_days: 1, duration_hours: 0, duration_minutes: 0, service_code: 'C', service_name: 'N', office_id: 'o', office_code: 'PUP-X', classification: 'SIMPLE' };
+const standard = { standard_id: 's1', duration_days: 1, duration_hours: 0, duration_minutes: 0, service_code: 'C', service_name: 'N', office_id: 'o', office_code: 'PUP-X', office_name: 'Example Office', classification: 'SIMPLE' };
 
 function client(fetchImpl, over = {}) {
   return createCoreClient({ baseUrl: 'http://core.test/api', serviceKey: KEY, fetchImpl, timeoutMs: 200, ...over });

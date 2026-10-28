@@ -109,12 +109,17 @@ async function expect(conn, ok = [2]) {
 export function createMailer({ host, port = 587, user = '', pass = '', from, secure = port === 465, timeoutMs = 10_000, requireTls = Boolean(user), hostname = 'ccms-operations', connect = null } = {}) {
   const configured = Boolean(host && from);
 
-  async function deliverMessage({ to, subject, text }) {
-    let socket = connect ? await connect({ host, port, secure }) : await new Promise((resolve, reject) => {
-      const s = secure ? tls.connect({ host, port, servername: host }, () => resolve(s)) : net.connect({ host, port }, () => resolve(s));
-      s.once('error', reject);
-    });
+  async function deliverMessage({ to, subject, text, messageId }, signal) {
+    let socket;
+    const abort = () => socket?.destroy(signal.reason instanceof Error ? signal.reason : new SmtpError('Mail send was cancelled'));
+    signal.addEventListener('abort', abort, { once: true });
     try {
+      signal.throwIfAborted();
+      socket = connect ? await connect({ host, port, secure }) : await new Promise((resolve, reject) => {
+        socket = secure ? tls.connect({ host, port, servername: host }, () => resolve(socket)) : net.connect({ host, port }, () => resolve(socket));
+        socket.once('error', reject);
+      });
+      signal.throwIfAborted();
       let conn = session(socket);
       await expect(conn); // 220 greeting
       conn.write(`EHLO ${hostname}`);
@@ -142,25 +147,26 @@ export function createMailer({ host, port = 587, user = '', pass = '', from, sec
       await expect(conn);
       conn.write('DATA');
       await expect(conn, [3]);
-      conn.write(`${buildMessage({ from, to, subject, text })}${CRLF}.`);
+      conn.write(`${buildMessage({ from, to, subject, text, messageId })}${CRLF}.`);
       await expect(conn);
       conn.write('QUIT');
+      await expect(conn).catch(() => {}); // DATA was accepted; a lost QUIT reply must not trigger another delivery.
       return true;
     } finally {
-      socket.destroy();
+      signal.removeEventListener('abort', abort);
+      socket?.destroy();
     }
   }
 
   return {
     configured,
-    async send(message) {
+    async send(message, { signal: externalSignal } = {}) {
       if (!configured) throw new SmtpError('SMTP is not configured (SMTP_HOST and EMAIL_FROM are required)');
-      let timer;
-      const limit = new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new SmtpError('The mail server did not answer in time')), timeoutMs);
-      });
+      const controller = new AbortController();
+      const signal = externalSignal ? AbortSignal.any([externalSignal, controller.signal]) : controller.signal;
+      const timer = setTimeout(() => controller.abort(new SmtpError('The mail server did not answer in time')), timeoutMs);
       try {
-        return await Promise.race([deliverMessage(message), limit]);
+        return await deliverMessage(message, signal);
       } finally {
         clearTimeout(timer);
       }

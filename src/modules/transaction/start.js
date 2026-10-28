@@ -136,8 +136,8 @@ export async function startTransaction(dataSource, { core, now = () => new Date(
            transaction_id, tracking_no, service_id, service_code, service_name, office_id, office_code, service_classification,
            standard_id, standard_duration_days, standard_duration_hours, standard_duration_minutes, counter_id, client_type,
            client_reference, client_email, started_at, started_by, ended_at, ended_by, status, is_backdated, backdate_reason,
-           receipt_email_status)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)`,
+            receipt_email_status, office_name)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
         [
           transactionId, number, input.serviceId, standard.service_code, standard.service_name, standard.office_id, standard.office_code,
           standard.classification, standard.standard_id, standard.duration_days, standard.duration_hours, standard.duration_minutes,
@@ -145,6 +145,7 @@ export async function startTransaction(dataSource, { core, now = () => new Date(
           completed ? input.endedAt : null, completed ? user.id : null,
           completed ? STATUS.COMPLETED : STATUS.IN_PROGRESS, backdated, input.backdateReason,
           completed && input.clientEmail ? 'PENDING' : 'NONE',
+          standard.office_name,
         ],
       );
 
@@ -154,6 +155,7 @@ export async function startTransaction(dataSource, { core, now = () => new Date(
         action: 'TRANSACTION_STARTED',
         entityType: 'transaction',
         entityId: transactionId,
+        entityName: number,
         officeId: standard.office_id,
         after: {
           tracking_no: number,
@@ -175,6 +177,7 @@ export async function startTransaction(dataSource, { core, now = () => new Date(
           action: 'TRANSACTION_BACKDATED',
           entityType: 'transaction',
           entityId: transactionId,
+          entityName: number,
           officeId: standard.office_id,
           after: { field: 'started_at', value: startedAt.toISOString(), reason: input.backdateReason },
           ipAddress,
@@ -186,6 +189,7 @@ export async function startTransaction(dataSource, { core, now = () => new Date(
           action: 'TRANSACTION_BACKDATED',
           entityType: 'transaction',
           entityId: transactionId,
+          entityName: number,
           officeId: standard.office_id,
           after: { field: 'ended_at', value: input.endedAt.toISOString(), reason: input.backdateReason },
           ipAddress,
@@ -195,6 +199,7 @@ export async function startTransaction(dataSource, { core, now = () => new Date(
           action: 'TRANSACTION_COMPLETED',
           entityType: 'transaction',
           entityId: transactionId,
+          entityName: number,
           officeId: standard.office_id,
           before: { status: STATUS.IN_PROGRESS },
           after: { status: STATUS.COMPLETED, ended_at: input.endedAt.toISOString() },

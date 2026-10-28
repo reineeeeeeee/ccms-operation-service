@@ -8,6 +8,7 @@
     "port": 3004
   },
   "scripts": {
+    "migrate:sprint4": "node --env-file-if-exists=.env.local scripts/migrate-sprint4-critical.js",
     "dev": "next dev -p 3004",
     "build": "next build",
     "start": "next start -p 3004",

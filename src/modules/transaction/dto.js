@@ -14,6 +14,7 @@ export function toTransactionDto(row, { detail = true } = {}) {
     service_classification: row.service_classification,
     office_id: row.office_id,
     office_code: row.office_code,
+    office_name: row.office_name ?? null,
     standard_id: row.standard_id,
     standard_duration_days: row.standard_duration_days,
     standard_duration_hours: row.standard_duration_hours,

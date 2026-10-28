@@ -59,6 +59,7 @@ export const Transaction = new EntitySchema({
     serviceName: { name: 'service_name', type: 'text' },
     officeId: { name: 'office_id', type: 'uuid' },
     officeCode: { name: 'office_code', type: 'varchar', length: 20 },
+    officeName: { name: 'office_name', type: 'text', nullable: true },
     serviceClassification: { name: 'service_classification', type: 'varchar', length: 20 },
     standardId: { name: 'standard_id', type: 'uuid' },
     standardDurationDays: { name: 'standard_duration_days', type: 'int' },
@@ -87,6 +88,8 @@ export const Transaction = new EntitySchema({
     queueWaitMinutes: { name: 'queue_wait_minutes', type: 'int', nullable: true },
     receiptEmailStatus: { name: 'receipt_email_status', type: 'varchar', length: 10, default: 'NONE' },
     receiptEmailAttempts: { name: 'receipt_email_attempts', type: 'int', default: 0 },
+    receiptEmailClaimToken: { name: 'receipt_email_claim_token', type: 'uuid', nullable: true },
+    receiptEmailClaimUntil: { name: 'receipt_email_claim_until', type: 'timestamptz', nullable: true },
     version: { type: 'int', default: 1 },
   },
 });

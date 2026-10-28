@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { auditEntityName } from './audit-name.js';
 import { OutboxEvent } from './db.js';
 
 /**
@@ -18,6 +19,7 @@ export async function recordAudit(manager, event) {
     actor_role: event.actor?.role ?? event.actorRole,
     action: event.action,
     entity_type: event.entityType,
+    entity_name: auditEntityName(event),
     entity_id: event.entityId == null ? null : String(event.entityId),
     office_id: event.officeId ?? null,
     before_value: event.before ?? null,

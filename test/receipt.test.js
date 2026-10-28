@@ -38,14 +38,15 @@ const waiting = (over = {}) =>
 
 describe('the receipt email content', () => {
   it('AC1/AC3: tracking number, service, office, start and completion in Manila time (12-hour), and the line to quote the tracking number', () => {
-    const row = { client_email: 'juan@example.com', tracking_no: 'PUP-OSAS-20261110-0001', service_name: 'Transcript of Records', office_code: 'PUP-OSAS', started_at: new Date(at('2026-11-10', '14:05')), ended_at: new Date(at('2026-11-10', '14:35')) };
+    const row = { client_email: 'juan@example.com', tracking_no: 'PUP-OSAS-20261110-0001', service_name: 'Transcript of Records', office_code: 'PUP-OSAS', office_name: 'Student Affairs', started_at: new Date(at('2026-11-10', '14:05')), ended_at: new Date(at('2026-11-10', '14:35')) };
     const mail = buildReceipt(row);
     assert.equal(mail.to, 'juan@example.com');
     assert.equal(mail.subject, 'Your CCMS transaction receipt PUP-OSAS-20261110-0001');
-    for (const line of ['Tracking number: PUP-OSAS-20261110-0001', 'Service: Transcript of Records', 'Office: PUP-OSAS', 'Started: 11/10/2026 2:05 PM', 'Completed: 11/10/2026 2:35 PM']) {
+    for (const line of ['Tracking number: PUP-OSAS-20261110-0001', 'Service: Transcript of Records', 'Office: Student Affairs', 'Started: 11/10/2026 2:05 PM', 'Completed: 11/10/2026 2:35 PM']) {
       assert.ok(mail.text.includes(line), line);
     }
-    assert.match(mail.text, /quote this tracking number whenever you file a concern/i);
+    assert.match(mail.text, /quote this tracking number whenever you file a complaint/i);
+    assert.ok(!mail.text.includes('file a concern'));
     assert.ok(!/complian|breach|variance|staff|started_by/i.test(mail.text), 'no compliance result and no staff names');
   });
 
@@ -126,8 +127,8 @@ describe('sending (CC024-T3)', () => {
 
   it('only completed transactions with an email are sent; cancelled, open and no-email rows are ignored', async () => {
     await waiting({ status: 'CANCELLED', cancel_reason: 'x', ended_at: null });
-    await waiting({ status: 'IN_PROGRESS', ended_at: null });
-    await waiting({ client_email: null });
+    await waiting({ status: 'IN_PROGRESS', ended_at: null, tracking_no: 'PUP-OSAS-20261110-0002' });
+    await waiting({ client_email: null, tracking_no: 'PUP-OSAS-20261110-0003' });
     const mailer = fakeMailer();
     assert.deepEqual(await runReceiptJob({ dataSource: env.ds, mailer }), { skipped: false, checked: 0, sent: 0, failed: 0 });
   });

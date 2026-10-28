@@ -61,6 +61,7 @@ export async function runAutoClose({ dataSource, core, now = () => new Date() })
         action: 'TRANSACTION_AUTO_CLOSED',
         entityType: 'transaction',
         entityId: row.transaction_id,
+        entityName: row.tracking_no,
         officeId: row.office_id,
         before: { status: row.status },
         after: {

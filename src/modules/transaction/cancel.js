@@ -33,6 +33,7 @@ export async function cancelTransaction(dataSource, user, id, body, { ipAddress 
       action: 'TRANSACTION_CANCELLED',
       entityType: 'transaction',
       entityId: id,
+      entityName: row.tracking_no,
       officeId: row.office_id,
       before: { status: row.status },
       after: { status: STATUS.CANCELLED, reason },

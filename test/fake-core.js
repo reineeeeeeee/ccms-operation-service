@@ -123,6 +123,7 @@ export async function startFakeCore({ serviceKey = 'test-service-key-0123456789'
         service_name: service.service_name,
         office_id: service.office_id,
         office_code: service.office_code,
+        office_name: state.offices.get(service.office_id)?.office_name ?? service.office_name,
         classification: service.classification,
       });
     }

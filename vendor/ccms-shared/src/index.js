@@ -7,6 +7,7 @@ export * from './permissions.js';
 export * from './service-key.js';
 export * from './db.js';
 export * from './logs-client.js';
+export * from './audit-name.js';
 export * from './time.js';
 export * from './rate-limit.js';
 export * from './cron.js';
